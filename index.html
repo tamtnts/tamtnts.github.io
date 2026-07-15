@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Công cụ giúp bạn bè tạo nhanh link sản phẩm mang mã giới thiệu của chủ website."
+    />
+    <meta name="theme-color" content="#fff7ed" />
+    <title>Link Hoa Hồng — Tạo link Shopee Affiliate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-glow page-glow--one"></div>
+    <div class="page-glow page-glow--two"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="Link Hoa Hồng - Trang chủ">
+        <span class="brand__mark" aria-hidden="true">↗</span>
+        <span>Link Hoa Hồng</span>
+      </a>
+      <span class="owner-badge"><span aria-hidden="true">●</span> Link giới thiệu của chúng tôi</span>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span></span> Công cụ tạo link sản phẩm Shopee</div>
+        <h1>Một đường link.<br /><em>Một lần chạm.</em></h1>
+        <p class="hero__copy">
+          Dán link sản phẩm bạn muốn chia sẻ và nhận ngay đường link đã gắn mã giới thiệu của chúng tôi.
+        </p>
+      </section>
+
+      <section class="converter-card" aria-labelledby="converter-title">
+        <div class="card-heading">
+          <div>
+            <p class="step-label">Bước 01</p>
+            <h2 id="converter-title">Dán link sản phẩm</h2>
+          </div>
+          <span class="status-pill" id="id-status">Đang kiểm tra mã giới thiệu</span>
+        </div>
+
+        <form id="converter-form" novalidate>
+          <label class="field-label" for="product-url">Link Shopee</label>
+          <div class="url-field">
+            <span class="url-field__icon" aria-hidden="true">⌁</span>
+            <input
+              id="product-url"
+              name="product-url"
+              type="url"
+              inputmode="url"
+              autocomplete="off"
+              placeholder="https://shopee.vn/ten-san-pham..."
+              required
+            />
+            <button class="paste-button" id="paste-button" type="button">Dán</button>
+          </div>
+
+          <div class="tracking-header">
+            <div>
+              <p class="step-label">Bước 02 <span>· Không bắt buộc</span></p>
+              <h3>Gắn nhãn để đo hiệu quả</h3>
+            </div>
+            <button class="text-button" id="clear-tracking" type="button">Xóa nhãn</button>
+          </div>
+
+          <div class="tracking-grid">
+            <label>
+              <span class="field-label">Nguồn chia sẻ</span>
+              <select id="source" name="source">
+                <option value="">Không gắn nguồn</option>
+                <option value="facebook">Facebook</option>
+                <option value="tiktok">TikTok</option>
+                <option value="youtube">YouTube</option>
+                <option value="website">Website</option>
+                <option value="zalo">Zalo</option>
+                <option value="other">Khác</option>
+              </select>
+            </label>
+            <label>
+              <span class="field-label">Chiến dịch</span>
+              <input id="campaign" name="campaign" maxlength="40" placeholder="VD: review-thang-7" />
+            </label>
+            <label>
+              <span class="field-label">Nội dung</span>
+              <input id="content-code" name="content-code" maxlength="40" placeholder="VD: video-01" />
+            </label>
+          </div>
+
+          <p class="form-message" id="form-message" role="alert" aria-live="polite"></p>
+
+          <button class="button button--primary button--wide" type="submit">
+            Tạo link Affiliate <span aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <div class="result" id="result" hidden>
+          <div class="result__header">
+            <div>
+              <p class="step-label">Hoàn tất</p>
+              <h3>Link của bạn đã sẵn sàng</h3>
+            </div>
+            <span class="result__check" aria-hidden="true">✓</span>
+          </div>
+          <label class="sr-only" for="affiliate-result">Link Affiliate đã tạo</label>
+          <textarea id="affiliate-result" readonly rows="3"></textarea>
+          <div class="result__actions">
+            <button class="button button--dark" id="copy-button" type="button">Sao chép link</button>
+            <a class="button button--outline" id="open-button" href="#" target="_blank" rel="noopener noreferrer">
+              Mở thử ↗
+            </a>
+          </div>
+          <p class="result__note">Hãy mở thử để chắc chắn link dẫn đúng sản phẩm trước khi chia sẻ.</p>
+        </div>
+      </section>
+
+      <section class="history-section" id="history-section" hidden>
+        <div class="section-heading">
+          <div>
+            <p class="step-label">Gần đây</p>
+            <h2>Lịch sử tạo link</h2>
+          </div>
+          <button class="text-button" id="clear-history" type="button">Xóa lịch sử</button>
+        </div>
+        <div class="history-list" id="history-list"></div>
+      </section>
+
+      <section class="how-it-works">
+        <p class="step-label">Cách hoạt động</p>
+        <div class="how-grid">
+          <article><strong>01</strong><h3>Dán link</h3><p>Nhận link sản phẩm hoặc link chia sẻ từ Shopee Việt Nam.</p></article>
+          <article><strong>02</strong><h3>Gắn mã</h3><p>Công cụ tự động dùng mã giới thiệu cố định của chủ website.</p></article>
+          <article><strong>03</strong><h3>Chia sẻ</h3><p>Sao chép link và dùng trên kênh đã đăng ký với Shopee.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Công cụ độc lập, không phải website chính thức của Shopee.</p>
+      <p>Bạn có thể nhận hoa hồng khi người xem mua hàng qua link tiếp thị liên kết.</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
