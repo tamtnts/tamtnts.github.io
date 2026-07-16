@@ -1,10 +1,5 @@
-import {
-  buildSubId,
-  createAffiliateLink,
-  normalizeShopeeUrl,
-  validateAffiliateId,
-} from "./affiliate.js";
-import { OWNER_AFFILIATE_ID } from "./site-config.js";
+import { buildSubIds, normalizeShopeeUrl } from "./affiliate.js";
+import { requestShortLink } from "./short-link-client.js";
 
 const STORAGE = {
   history: "linkhoahong.history",
@@ -32,14 +27,6 @@ const elements = {
 
 let toastTimer;
 
-function getAffiliateId() {
-  try {
-    return validateAffiliateId(OWNER_AFFILIATE_ID);
-  } catch {
-    return "";
-  }
-}
-
 function getHistory() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE.history)) || [];
@@ -55,10 +42,19 @@ function showToast(message) {
   toastTimer = setTimeout(() => elements.toast.classList.remove("toast--visible"), 2200);
 }
 
-function updateIdStatus() {
-  const configured = Boolean(getAffiliateId());
-  elements.idStatus.textContent = configured ? "Mã giới thiệu đã sẵn sàng" : "Chủ web chưa cấu hình mã";
-  elements.idStatus.classList.toggle("status-pill--ready", configured);
+function setServiceState(state) {
+  const button = elements.form.querySelector('button[type="submit"]');
+  const states = {
+    ready: [false, "Tạo link Affiliate →", "Sẵn sàng tạo link", true],
+    loading: [true, "Đang tạo link…", "Đang tạo link", false],
+    error: [false, "Tạo link Affiliate →", "Không thể tạo link", false],
+    notConfigured: [false, "Tạo link Affiliate →", "Dịch vụ chưa được kích hoạt", false],
+  };
+  const [disabled, buttonText, statusText, ready] = states[state];
+  button.disabled = disabled;
+  button.textContent = buttonText;
+  elements.idStatus.textContent = statusText;
+  elements.idStatus.classList.toggle("status-pill--ready", ready);
 }
 
 async function copyText(value) {
@@ -131,36 +127,28 @@ function renderHistory() {
   });
 }
 
-elements.form.addEventListener("submit", (event) => {
+elements.form.addEventListener("submit", async (event) => {
   event.preventDefault();
   elements.formMessage.textContent = "";
-
-  if (!getAffiliateId()) {
-    elements.formMessage.textContent = "Chủ website chưa cấu hình Affiliate ID. Vui lòng báo cho chủ website.";
-    return;
-  }
-
+  elements.result.hidden = true;
+  setServiceState("loading");
   try {
     const originalUrl = normalizeShopeeUrl(elements.productUrl.value);
-    const subId = buildSubId([
+    const subIds = buildSubIds([
       elements.source.value,
       elements.campaign.value,
       elements.contentCode.value,
     ]);
-    const affiliateUrl = createAffiliateLink({
-      productUrl: originalUrl,
-      affiliateId: getAffiliateId(),
-      subId,
-    });
-
-    elements.resultValue.value = affiliateUrl;
-    elements.openButton.href = affiliateUrl;
+    const shortLink = await requestShortLink({ originUrl: originalUrl, subIds });
+    elements.resultValue.value = shortLink;
+    elements.openButton.href = shortLink;
     elements.result.hidden = false;
-    addToHistory(originalUrl, affiliateUrl, subId);
+    addToHistory(originalUrl, shortLink, subIds.join("-"));
     elements.result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    setServiceState("ready");
   } catch (error) {
-    elements.result.hidden = true;
     elements.formMessage.textContent = error.message;
+    setServiceState(error.code === "SERVICE_NOT_CONFIGURED" ? "notConfigured" : "error");
   }
 });
 
@@ -192,5 +180,5 @@ elements.clearHistory.addEventListener("click", () => {
   showToast("Đã xóa lịch sử");
 });
 
-updateIdStatus();
+setServiceState("ready");
 renderHistory();

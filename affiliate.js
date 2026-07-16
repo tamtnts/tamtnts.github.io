@@ -26,7 +26,7 @@ export function normalizeShopeeUrl(rawUrl) {
     throw new Error("Chỉ chấp nhận link HTTPS chính thức của Shopee Việt Nam.");
   }
 
-  // Nếu đây đã là một link an_redir, lấy lại trang đích.
+  // Nếu đây là link an_redir cũ, lấy lại trang đích để dịch vụ tạo short link mới.
   if (hostname === "s.shopee.vn" && url.pathname === "/an_redir") {
     const origin = url.searchParams.get("origin_link");
     if (origin) return normalizeShopeeUrl(origin);
