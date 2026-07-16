@@ -45,11 +45,11 @@ export function createHandler({ env = process.env, now = () => Math.floor(Date.n
           body: payload,
           signal: controller.signal,
         });
+        if (!upstream.ok) return fail(503, "UPSTREAM_UNAVAILABLE", "Shopee tạm thời không phản hồi.");
+        return reply(200, { shortLink: readShopeeResult(await upstream.json()) });
       } finally {
         clearTimeout(timeout);
       }
-      if (!upstream.ok) return fail(503, "UPSTREAM_UNAVAILABLE", "Shopee tạm thời không phản hồi.");
-      return reply(200, { shortLink: readShopeeResult(await upstream.json()) });
     } catch (error) {
       if (error instanceof ShopeeApiError) return fail(error.status, error.code, error.message);
       if (error?.name === "AbortError" || error instanceof TypeError) {

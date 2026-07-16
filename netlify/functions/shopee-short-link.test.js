@@ -75,3 +75,36 @@ test("ánh xạ upstream HTTP error thành unavailable", async () => {
   const httpErrorFetch = async () => ({ ok: false });
   assert.equal((await createHandler({ env, fetchImpl: httpErrorFetch })(event)).statusCode, 503);
 });
+
+test('keeps timeout active while reading the response body', async () => {
+  const realSetTimeout = globalThis.setTimeout;
+  const realClearTimeout = globalThis.clearTimeout;
+  let timer;
+  globalThis.setTimeout = (callback, delay) => {
+    assert.equal(delay, 8000);
+    timer = { callback, cleared: false };
+    return timer;
+  };
+  globalThis.clearTimeout = (handle) => { handle.cleared = true; };
+
+  try {
+    let signal;
+    const fetchImpl = async (_url, options) => {
+      signal = options.signal;
+      return {
+        ok: true,
+        json: async () => {
+          if (!timer.cleared) timer.callback();
+          if (signal.aborted) throw Object.assign(new Error('aborted'), { name: 'AbortError' });
+          return { data: { generateShortLink: { shortLink: 'https://s.shopee.vn/abc' } } };
+        },
+      };
+    };
+
+    const response = await createHandler({ env, fetchImpl })(event);
+    assert.equal(response.statusCode, 503);
+  } finally {
+    globalThis.setTimeout = realSetTimeout;
+    globalThis.clearTimeout = realClearTimeout;
+  }
+});
