@@ -26,7 +26,7 @@ export function normalizeShopeeUrl(rawUrl) {
     throw new Error("Chỉ chấp nhận link HTTPS chính thức của Shopee Việt Nam.");
   }
 
-  // Nếu đây đã là một link an_redir, lấy lại trang đích và gắn Affiliate ID mới.
+  // Nếu đây đã là một link an_redir, lấy lại trang đích.
   if (hostname === "s.shopee.vn" && url.pathname === "/an_redir") {
     const origin = url.searchParams.get("origin_link");
     if (origin) return normalizeShopeeUrl(origin);
@@ -34,14 +34,6 @@ export function normalizeShopeeUrl(rawUrl) {
 
   url.hash = "";
   return url.toString();
-}
-
-export function validateAffiliateId(value) {
-  const affiliateId = String(value ?? "").trim();
-  if (!/^\d{5,20}$/.test(affiliateId)) {
-    throw new Error("Affiliate ID cần gồm từ 5 đến 20 chữ số.");
-  }
-  return affiliateId;
 }
 
 export function sanitizeSubIdPart(value) {
@@ -57,16 +49,7 @@ export function sanitizeSubIdPart(value) {
     .slice(0, 40);
 }
 
-export function buildSubId(parts) {
-  return parts.map(sanitizeSubIdPart).filter(Boolean).slice(0, 5).join("-");
-}
-
-export function createAffiliateLink({ productUrl, affiliateId, subId = "" }) {
-  const originLink = normalizeShopeeUrl(productUrl);
-  const validAffiliateId = validateAffiliateId(affiliateId);
-  const trackingUrl = new URL("https://s.shopee.vn/an_redir");
-  trackingUrl.searchParams.set("origin_link", originLink);
-  trackingUrl.searchParams.set("affiliate_id", validAffiliateId);
-  if (subId) trackingUrl.searchParams.set("sub_id", sanitizeSubIdPart(subId));
-  return trackingUrl.toString();
+export function buildSubIds(parts) {
+  if (!Array.isArray(parts)) throw new Error("Danh sách nhãn theo dõi không hợp lệ.");
+  return parts.map(sanitizeSubIdPart).filter(Boolean).slice(0, 5);
 }
