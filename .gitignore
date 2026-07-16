@@ -1,2 +1,5 @@
 # Local Netlify folder
 .netlify
+
+# Local Git worktrees
+.worktrees/
