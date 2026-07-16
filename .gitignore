@@ -6,3 +6,8 @@
 
 # Subagent development scratch state
 .superpowers/
+
+# Local environment secrets
+.env
+.env.*
+!.env.example
