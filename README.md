@@ -6,11 +6,26 @@ Công cụ web giúp tạo short link sản phẩm Shopee qua Shopee Open API. G
 
 Yêu cầu Node.js 18 trở lên:
 
+UI-only static preview (the Netlify Function is not available in this mode):
+
 ```bash
 npm start
 ```
 
 Sau đó mở `http://127.0.0.1:4173`.
+
+Full-stack local run (UI + Netlify Function):
+
+```powershell
+Copy-Item .env.example .env
+# Fill .env with your own local SHOPEE_APP_ID and SHOPEE_API_KEY values.
+npx netlify-cli dev
+```
+
+The ignored `.env` file is for local credentials only. Never commit it or paste real
+credentials into source, documentation, issues, pull requests, or logs. Open the URL
+printed by Netlify Dev (normally `http://localhost:8888`) to exercise the complete flow.
+`npm start` remains UI-only and cannot create Shopee short links.
 
 ## Cấu hình Shopee Open API
 

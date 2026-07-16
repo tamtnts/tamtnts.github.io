@@ -108,3 +108,30 @@ test('keeps timeout active while reading the response body', async () => {
     globalThis.clearTimeout = realClearTimeout;
   }
 });
+
+test("rejects a null top-level JSON value as an invalid request", async () => {
+  const response = await createHandler({ env })({ httpMethod: "POST", body: "null" });
+  assert.equal(response.statusCode, 400);
+  assert.equal(JSON.parse(response.body).error.code, "INVALID_REQUEST");
+});
+
+test("rejects non-string subIds as an invalid request", async () => {
+  const response = await createHandler({ env })({
+    httpMethod: "POST",
+    body: JSON.stringify({ originUrl: "https://shopee.vn/product/1/2", subIds: [123] }),
+  });
+  assert.equal(response.statusCode, 400);
+  assert.equal(JSON.parse(response.body).error.code, "INVALID_REQUEST");
+});
+
+test("maps malformed upstream JSON to a safe Shopee error", async () => {
+  const response = await createHandler({
+    env,
+    fetchImpl: async () => ({
+      ok: true,
+      json: async () => { throw new SyntaxError("Unexpected token < in JSON"); },
+    }),
+  })(event);
+  assert.equal(response.statusCode, 502);
+  assert.equal(JSON.parse(response.body).error.code, "SHOPEE_ERROR");
+});

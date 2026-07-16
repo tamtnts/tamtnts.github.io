@@ -26,7 +26,16 @@ export function createHandler({ env = process.env, now = () => Math.floor(Date.n
 
     try {
       const input = JSON.parse(event.body || "{}");
-      if (!Array.isArray(input.subIds) || input.subIds.length > 5) throw new Error("invalid subIds");
+      if (
+        input === null
+        || typeof input !== "object"
+        || Array.isArray(input)
+        || !Array.isArray(input.subIds)
+        || input.subIds.length > 5
+        || !input.subIds.every((subId) => typeof subId === "string")
+      ) {
+        throw new Error("invalid input");
+      }
       const payload = buildShopeePayload({
         originUrl: normalizeShopeeUrl(input.originUrl),
         subIds: buildSubIds(input.subIds),
@@ -47,6 +56,12 @@ export function createHandler({ env = process.env, now = () => Math.floor(Date.n
         });
         if (!upstream.ok) return fail(503, "UPSTREAM_UNAVAILABLE", "Shopee tạm thời không phản hồi.");
         return reply(200, { shortLink: readShopeeResult(await upstream.json()) });
+      } catch (error) {
+        if (error instanceof ShopeeApiError || error?.name === "AbortError" || error instanceof TypeError) {
+          throw error;
+        }
+        readShopeeResult(null);
+        throw error;
       } finally {
         clearTimeout(timeout);
       }
