@@ -3,3 +3,6 @@
 
 # Local Git worktrees
 .worktrees/
+
+# Subagent development scratch state
+.superpowers/
